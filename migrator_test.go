@@ -436,3 +436,27 @@ func TestDownFileList(t *testing.T) {
 
 	}
 }
+
+func TestMigrFileName(t *testing.T) {
+	tests := []MigrFile{
+		{"20240701105959_act1.sql", parseCorrectDate("20240701105959", DEF_FILE_DATE_FORMAT), "act1"},
+		{"20200701105959_act2.sql", parseCorrectDate("20200701105959", DEF_FILE_DATE_FORMAT), "act2"},
+		{"20200602235959_act3.sql", parseCorrectDate("20200602235959", DEF_FILE_DATE_FORMAT), "act3"},
+	}
+
+	//base directory
+	baseDir, err := os.MkdirTemp(os.TempDir(), "sqlmigr")
+	if err != nil {
+		t.Fatalf("os.MkdirTemp failed: %v", err)
+	}
+	defer os.RemoveAll(baseDir) // clean up
+
+	m := NewMigrator(baseDir)
+
+	for _, tt := range tests {
+		got := m.GetMigrFileName(tt.Pos, tt.Action)
+		if got != tt.Name {
+			t.Fatalf("Name expected to be %s, got %s", tt.Name, got)
+		}
+	}
+}

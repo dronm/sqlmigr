@@ -189,7 +189,7 @@ func (m *Migrator) Up() (*MigrFile, error) {
 
 // Add creates a new migration of type mgType with time t and action act.
 func (m *Migrator) Add(t time.Time, act string, mgType MigType, fileContent []byte) error {
-	fName := t.Format(m.DateFormat) + m.FilePartSep + act + m.ScriptExt
+	fName := m.GetMigrFileName(t, act)
 	fullName := m.GetMigrFullFileName(mgType, fName)
 	if err := os.WriteFile(fullName, fileContent, NEW_FILE_PERM); err != nil {
 		return err
@@ -207,6 +207,11 @@ func (m *Migrator) GetMigrFullFileName(mgType MigType, fName string) string {
 		mgDir = m.DownDir
 	}
 	return filepath.Join(m.Dir, mgDir, fName)
+}
+
+// GetMigrFileName returns migration file name constructed based on Migrator parameters.
+func (m *Migrator) GetMigrFileName(t time.Time, act string) string {
+	return t.Format(m.DateFormat) + m.FilePartSep + act + m.ScriptExt
 }
 
 // NewFileList returns migration files sorted by dates according to selected migration type.
